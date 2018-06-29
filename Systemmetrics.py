@@ -11,8 +11,6 @@ import struct
 import time,datetime
 import hashlib
 import ConfigParser
-from flask import Flask
-app = Flask(__name__)
 
 config_file_path = "/home/ec2-user/vamshi/Systemmetrics.conf"
 
@@ -183,7 +181,6 @@ def network_Data():
         network_Data['transprotProtocol'] = list_Of_tcpConnections()
         return network_Data
 
-@app.route('/systemmetrics')
 def main():
         output = {}
         cmdLine = psutil.Process().cmdline()
@@ -204,15 +201,14 @@ def main():
 
 
 if __name__ == '__main__':
-	#import daemon
+	import daemon
 	initConfig()
 	interval = int(interval)
-	#with daemon.DaemonContext():	
-		#while True:
-	#output = main()
-	#ff = open('/tmp/output_{0}.json'.format(time.time()), 'w')
-	#ff.write(output)
-	#ff.flush()
-	#ff.close()
-	#time.sleep(interval*60)
-	app.run(port=8000)
+	with daemon.DaemonContext():	
+		while True:
+			output = main()
+			ff = open('/tmp/output_{0}.json'.format(time.time()), 'w')
+			ff.write(output)
+			ff.flush()
+			ff.close()
+			time.sleep(interval*60)
